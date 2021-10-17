@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Get the Weather information of any city!</title>
+    <script src="https://kit.fontawesome.com/aa5948fe53.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: large;
+            text-align: center;
+            width: 100%;
+            height: 100vh;
+            color: rgb(0, 0, 0);
+            background: linear-gradient(-45deg, #f05c2f, #E73C7E, #23A6D5, #23D5AB);
+            background-size: 400%, 400%;
+            position: relative;
+            animation: change 10s ease-in-out infinite;
+        }
+        
+        @keyframes change {
+            0% {
+                background-position: 0 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0 50%;
+            }
+        }
+        
+        .container {
+            display: flex;
+            color: rgb(251, 255, 0);
+            flex-flow: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+        
+        .row {
+            border: 0spx solid grey;
+            border-radius: 5px;
+            padding: 10px;
+            width: 600px;
+            height: auto;
+        }
+        
+        hr {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .error {
+            color: red;
+            font-size: x-large;
+        }
+        
+        a {
+            text-decoration: none;
+            color: yellow;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        ul>li {
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+        
+        img {
+            width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        footer {
+            text-align: center;
+        }
+        
+        .img-added {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .img-added img {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .img-added span {
+            margin-left: 4px;
+        }
+        
+        button {
+            background: #ff8c18;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        form input {
+            padding: 5px;
+        }
+        
+        .fas {
+            color: white;
+            size: 100in
+        }
+        
+        .container h1 {
+            color: #ff8c18;
+            font-style: italic;
+        }
+        
+        .row input {
+            color: rgb(1, 41, 65);
+            border-radius: 10px;
+            border: transparent;
+        }
+        
+        .row label {
+            color: black;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <i class="fas fa-cloud-sun fa-4x"></i>
+        <h1>WEATHERIO</h1>
+
+        <div class="row">
+            <form id="weather-form">
+                <label for="city">Enter your city:</label>
+                <input type="text" id="city">
+                <button>Display weather</button>
+            </form>
+            <h2>Current weather for: <span id="location"></span></h2>
+            <div class="weather">
+                <ul>
+                    <li>Current Temperature: <span id="c-temp"></span></li>
+                    <li>Current Humidity: <span id="c-hum"></span></li>
+                    <li>Minimum Temperature today: <span id="min-temp"></span></li>
+                    <li>Maximum Temperature today: <span id="max-temp"></span></li>
+                    <li>Latitude: <span id="latit"></span></li>
+                    <li>Longitude: <span id="longit"></span></li>
+                    <li class="img-added">Weather Description: <span id="weather-description"></span></li>
+                </ul>
+            </div>
+        </div>
+        <footer>
+            <br><br><br><br><br>
+            <p>Developed by: Talal Ahmed</p>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript">
+        $("#weather-form").on("submit", function(event) {
+
+            event.preventDefault();
+
+            var city, apiKey, apiUrl, units;
+
+            city = $("#city").val().toUpperCase();
+
+            apiKey = "b965294b6d00bd0c41e73d6c2427f51f";
+
+            units = "&units=metric";
+
+            apiUrl = "http://api.openweathermap.org/data/2.5/weather?" + "q=" + city + "&APPID=" + apiKey + units;
+
+            $.ajax({
+
+                url: apiUrl,
+                method: "GET",
+
+            })
+
+            .done(function(response) {
+
+                var climate = response.main;
+                var latitud = response.coord;
+                var longitud = response.coord;
+                var weatherDescription = response.weather[0];
+                var icono = response.weather[0];
+
+
+                var temp = climate.temp;
+                var minTemp = climate.temp_min;
+                var maxTemp = climate.temp_max;
+                var humidity = climate.humidity;
+                var lat = latitud.lat;
+                var lon = longitud.lon;
+                var weatherDesc = weatherDescription.description;
+                var iconoImg = icono.icon;
+
+                $("#location").empty();
+                $("span").empty();
+
+                $("#c-temp").append(temp).append("°");
+                $("#c-hum").append(humidity).append("%");
+                $("#min-temp").append(minTemp).append("°");
+                $("#max-temp").append(maxTemp).append("°");
+                $("#latit").append(lat);
+                $("#longit").append(lon);
+
+                var img = '<img src="http://openweathermap.org/img/w/' + iconoImg + '.png' + '">';
+                $("#weather-description").empty().append(weatherDesc);
+                $(".img-added img").remove();
+                $(".img-added").append(img);
+
+                $("#location").append(city);
+
+
+            })
+
+            .fail(function(response) {
+
+                var error = '<span class="error">Sorry, something went wrong.</span>';
+                $(".weather").append(error);
+
+                var errorDetails = JSON.parse(response.responseText);
+                console.log(errorDetails.message);
+
+            });
+
+        });
+    </script>
+</body>
+
+</html>
